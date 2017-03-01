@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<!--[if IE 8 ]> <html lang="en" class="ie8"> <![endif]-->
+<!--[if IE 9 ]> <html lang="en" class="ie9"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!-->
+<html lang="en"><!--<![endif]--><head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;" name="viewport">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta http-equiv="pragma" content="no-cache" />
+<title>520fl.net用户注册站</title>
+
+
+<!--[if lt IE 9]>
+<script src="js/html5shiv.js"></script>
+<![endif]-->
+<link href="static/css/bootstrap.min.css" rel="stylesheet">
+
+
+<style type="text/css">
+body{font:normal 15px/1.5 Arial, Helvetica, Free Sans, sans-serif;width: auto ;color: #222;overflow-y:scroll;padding:60px 0 0 0;}
+#my-form{width:353px;margin:0 auto;border:1px solid #ccc; padding:3em;border-radius:3px;box-shadow:0 0 2px rgba(0,0,0,.2);}
+
+
+#gonggao{
+	width:353px;
+	height:80px;
+	background-color: #f5f5f5;
+	
+	margin-top: -50px;
+	margin-left:-46px;
+	margin-bottom : 30px;
+}
+
+#username{
+	margin-bottom:20px;
+}
+
+#lst{
+	margin-bottom:20px;
+}
+
+#payType{
+	
+	border:dashed 1px #1B6D85;
+}
+
+#button{
+
+	margin-top:25px;
+}
+
+#alipay {
+	margin-top:15px;
+}
+
+#weixin{
+	margin-top:14px;
+}
+#gonggao{
+	
+	font-size: 20px;
+	font-weight: bold;
+	color: red;
+	text-align: center;
+	padding-top: 10px;
+	
+}
+
+.loading{  
+    width:160px;  
+    height:56px;  
+    position: absolute;  
+    top:37%;  
+    left:50%;  
+    line-height:56px;  
+    color:#fff;  
+    padding-left:60px;  
+    font-size:15px;  
+    background: #000 url(static/img/loading.gif) no-repeat 10px 50%;  
+    opacity: 0.7;  
+    z-index:9999;  
+    -moz-border-radius:20px;  
+    -webkit-border-radius:20px;  
+    border-radius:20px;  
+    filter:progid:DXImageTransform.Microsoft.Alpha(opacity=70); 
+	margin-left:-72px;
+	display: none;
+	
+}  
+
+#myModal{
+	
+	margin-top: 40px;
+	
+}
+
+#modal-footer{
+	text-align: center;
+}
+
+#queren{
+	
+	display: none;
+}
+</style>
+
+<script>
+
+function is_ready(){
+	
+	if($("#username").val().trim()==""){
+		alert("用户名不能为空");
+	}else is_vip();
+}
+
+
+
+function is_vip(){
+
+	
+	$("#button").attr("disabled","true");
+	var username = $("#username").val();
+
+	$.ajax({
+		
+		url: "/Index/User/query",
+		async:true,
+		dataType: "json",
+		type: "POST",
+		data: "username="+username,
+		success: function(res){
+			
+			if(res.status=="1"){
+				
+				var addTime = $("#lst").val();
+				var addDay=0;
+				if(addTime==1){
+					addDay =30;
+				}else if(addTime==2){
+					addDay =180;
+				}else if(addTime==3){
+					addDay =3600;
+				}else if(addTime==4){ 
+					addDay =1000;
+				}else addDay=0;
+				$("#queren").click();
+				$("#button").removeAttr("disabled");
+				$("#show_username").html(username);
+				
+		
+				var newDate = new Date();
+				newDate.setTime(res.time*1000);
+				var dateString = newDate.getFullYear()+"-"+(newDate.getMonth()+1)+"-"+newDate.getDate();
+				
+				var nextDate = new Date();
+				var startTime;
+				if(Number(res.time)<Date.parse(new Date())/1000)
+					startTime = Date.parse(new Date())/1000;
+				else startTime = Number(res.time);
+				var ntime = (startTime)+addDay*3600*24;
+				nextDate.setTime(ntime*1000);
+				var nextTime = nextDate.getFullYear()+"-"+(nextDate.getMonth()+1)+"-"+nextDate.getDate();
+				
+				$("#show_usertime").html(dateString);
+				$("#show_product").html($("#lst").find("option:selected").text());
+				
+				if(addDay=="1000")
+				nextTime ="永久会员";
+				$("#show_nexttime").html(nextTime);
+				
+			}else{
+				alert(res.status);
+				$("#button").removeAttr("disabled");
+			}
+		}
+	});
+	
+
+	//$("#loading").css("display","none");
+}
+	function do_submit(){
+		$("#button").attr("disabled","true");
+		$("#close_modal").click();
+		$("#loading").css("display","block");
+	}
+
+</script>
+
+</head>
+<body style="background-color:#444" class="container-fluid">
+
+
+<div class="row">
+
+  <div class="eightcol last">
+
+    <!-- Begin Form -->
+  
+    
+  
+
+    <form id="my-form" style="background-color:#fff">
+
+		<div id="gonggao">
+			支付服务器不稳定 <br>请耐心等待订单的创建
+			
+		</div>
+	
+		<label >用户名：</label>
+		<input class="form-control" id="username" name="username">
+		
+		<label >选择商品：</label><div id="loading" class="loading" >创建订单中... </div>  
+		<select class="form-control" name="product_id" id="lst">
+		<option value="1">会员 30   天 售价 30 元</option>
+		<option value="2">会员 180 天 售价 120 元</option>
+		<option value="3">会员 360 天 售价 199 元</option>
+		<option value="4">永久会员     售价 399 元</option>
+		
+		</select>
+		
+
+		<label class="radio-inline" id="payType">
+			<input type="radio" id="alipay" name="payType" id="inlineRadio3" value="option3" checked> 
+			<img src="static/img/alipay.png"  />
+		</label>
+
+	
+
+		<label class="radio-inline" id="payType">
+			<input type="radio" id="weixin" name="payType" id="inlineRadio3" value="option3"> 
+			<img src="static/img/weixin.jpg" />
+		</label>
+
+			<button autocomplete="off" class="btn btn-danger btn-block" id="button" type="button" onclick="is_ready();">提交</button>
+
+   				
+   			<!--  autocomplete="off" 用于解决火狐下的按钮刷新不完全问题  -->
+      
+    </form>
+	
+	
+
+    <!-- End Form -->
+
+  </div>
+
+</div>
+<button type="hidden" id="queren"  class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
+  信息确认
+</button>
+    	<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" id="close_modal" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title" id="myModalLabel"> 提示：手机可以把支付二维码保存到相册，用支付宝或者微信打开</h4>
+      </div>
+      <div class="modal-body" id="modal-body">
+              当前充值账号：<span id="show_username"></span><br>
+    	当前到期时间：<span id="show_usertime"></span> <br> 
+    	<hr>
+   		当前商品信息：<span id="show_product"></span><br>
+   		下次到期时间：<span id="show_nexttime"></span><br>
+   
+      </div>
+      <div class="modal-footer" id="modal-footer">
+       
+        <button type="button" class="btn btn-success btn-block" id="do_sumbmit" onclick="do_submit();">确认并提交</button>
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script type="text/javascript" src="static/js/jquery-1.11.1.min.js" ></script>
+<script type="text/javascript" src="static/js/bootstrap.min.js" ></script>
+
+</body>
+</html>
